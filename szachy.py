@@ -97,7 +97,7 @@ def wczytajRuch():
     return ruchy.readline()
     ruchy.close()
 def pobierzRuch():
-    ruchy = open('ruchy.txt', 'r+')
+    ruchy = open('ruchy.txt', 'w+')
     ruchNowy=input('\n podaj ruch np:c1c6\n')
     ruchy.write(ruchNowy+'\n')
     ruchy.truncate()
@@ -111,7 +111,7 @@ def ruch(ostatniRuch):
            endX=i-1
         i+=1
         startY=int(ostatniRuch[1])-1
-        endY=int(ostatniRuch[3])-1    
+        endY=int(ostatniRuch[3])-1
     szachownica[endX][endY]=szachownica[startX][startY]
     szachownica[startX][startY]=0
     
