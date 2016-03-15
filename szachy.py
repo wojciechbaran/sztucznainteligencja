@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import sys, time
+import sys, time, math
 szachownica=[[0 for x in range(8)] for x in range(8)]
 figury=[0 for x in range(16)]
 plikWymiany='ruchy.txt'
@@ -15,6 +15,39 @@ class Pion:
         self.inicjal='p'
         if kolor:
             self.inicjal='P'
+    def sprawdz(self,endX,endY):
+        #sprawdzenie ruchu na prawo i lewo
+        if self.pozycjaX!=endX:
+            if math.fabs(self.pozycjaX-endX)>1:
+                return 0
+            else:
+                if szachownica[endX][endY]==0:
+                    return 0
+        #sprawdzenie ruchu w przód
+        if szachownica[self.pozycjaX][endY]!=0:
+            return 0
+        if self.kolor:
+            if self.pozycjaY<endY:
+                return 0
+            if self.pozycjaY==6:
+                if self.pozycjaY-endY>2:
+                    return 0
+            else:
+                if self.pozycjaY-endY>1:
+                    return 0                
+        else: 
+            if self.pozycjaY>endY:
+                return 0
+            if self.pozycjaY==1:
+                if endY-self.pozycjaY>2:
+                    return 0
+            else:
+                if endY-self.pozycjaY>1:
+                    return 0
+            
+        self.pozycjaX=endX
+        self.pozycjaY=endY
+        return 1
 class Wieza:
     wartosc=5
     def __init__(self, kolor, pozycjaX, pozycjaY):
@@ -24,6 +57,10 @@ class Wieza:
         self.inicjal='w'
         if kolor:
             self.inicjal='W'
+    def sprawdz(self,endX,endY):
+        self.pozycjaX=endX
+        self.pozycjaY=endY
+        return 1
 class Kon:
     wartosc=3
     def __init__(self, kolor, pozycjaX, pozycjaY):
@@ -33,6 +70,10 @@ class Kon:
         self.inicjal='s'
         if kolor:
             self.inicjal='S'
+    def sprawdz(self,endX,endY):
+        self.pozycjaX=endX
+        self.pozycjaY=endY
+        return 1
 class Laufer:
     wartosc=3
     def __init__(self, kolor, pozycjaX, pozycjaY):
@@ -42,6 +83,10 @@ class Laufer:
         self.inicjal='l'
         if kolor:
             self.inicjal='L'
+    def sprawdz(self,endX,endY):
+        self.pozycjaX=endX
+        self.pozycjaY=endY
+        return 1
 class Krol:
     wartosc=0
     def __init__(self, kolor, pozycjaX, pozycjaY):
@@ -51,6 +96,10 @@ class Krol:
         self.inicjal='k'
         if kolor:
             self.inicjal='K'
+    def sprawdz(self,endX,endY):
+        self.pozycjaX=endX
+        self.pozycjaY=endY
+        return 1
 def init():
     for i in range(4):
         figury[i]=Pion(i+1,0,4+i,1)
@@ -121,6 +170,8 @@ def ruch(ostatniRuch):
     if endY<0 or endY>7:
         return 0
     if szachownica[startX][startY]==0:
+        return 0
+    if szachownica[startX][startY].sprawdz(endX,endY)==0:
         return 0
     szachownica[endX][endY]=szachownica[startX][startY]
     szachownica[startX][startY]=0
