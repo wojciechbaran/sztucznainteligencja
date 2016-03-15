@@ -110,14 +110,24 @@ def ruch(ostatniRuch):
         if ostatniRuch[2].upper()==let:
            endX=i-1
         i+=1
-        startY=int(ostatniRuch[1])-1
-        endY=int(ostatniRuch[3])-1
+    startY=int(ostatniRuch[1])-1
+    endY=int(ostatniRuch[3])-1
+    if startX<0 or startX>7:
+        return 0
+    if startY<0 or startY>7:
+        return 0
+    if endX<0 or endX>7:
+        return 0
+    if endY<0 or endY>7:
+        return 0
+    if szachownica[startX][startY]==0:
+        return 0
     szachownica[endX][endY]=szachownica[startX][startY]
     szachownica[startX][startY]=0
-    
+    return 1
 init()
 drukujSzachownice()
 for i in range(4):
     pobierzRuch()
-    ruch(wczytajRuch())
+    print(ruch(wczytajRuch()))
     drukujSzachownice()
