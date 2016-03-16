@@ -84,6 +84,7 @@ class Laufer:
         if kolor:
             self.inicjal='L'
     def sprawdz(self,endX,endY):
+        #ustalenie koloru
         self.pozycjaX=endX
         self.pozycjaY=endY
         return 1
