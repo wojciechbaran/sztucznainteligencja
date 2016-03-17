@@ -8,6 +8,10 @@ figury=[0 for x in range(16)]
 plikWymiany='ruchy.txt'
 #lista alfabet sluzy do wyswietlania planszy oraz ustalenia wartosci x ruchu
 alfabet=[" ","A","B","C","D","E","F","G","H"]
+#nasz kolor, domyslnie bialy
+kolor=0
+#flaga SzachMat
+szachMat=0
 #Klasy bierek(figur):
 class Pion:
     #wartosc danej bierki
@@ -57,6 +61,24 @@ class Pion:
         self.pozycjaX=endX
         self.pozycjaY=endY
         return 1
+    #typy ruchow
+    ruchy=['przod2','przod','bicielewo','bicieprawo']
+    def przod(self):
+        if self.kolor:
+            return [self.pozycjaX,self.pozycjaY-1]
+        return [self.pozycjaX,self.pozycjaY+1]
+    def przod2(self):
+        if self.kolor:
+            return [self.pozycjaX,self.pozycjaY-2]
+        return [self.pozycjaX,self.pozycjaY+2]
+    def bicielewo(self):
+        if self.kolor:
+            return [self.pozycjaX+1,self.pozycjaY-1]
+        return [self.pozycjaX-1,self.pozycjaY+1]
+    def bicieprawo(self):
+        if self.kolor:
+            return [self.pozycjaX-1,self.pozycjaY-1]
+        return [self.pozycjaX+1,self.pozycjaY+1]
 class Wieza:
     wartosc=5
     def __init__(self, kolor, pozycjaX, pozycjaY):
@@ -148,21 +170,20 @@ def drukujSzachownice():
     for i in range(9):
         print(alfabet[i], end=" ")
 def wczytajRuch():
-    ruchy = open('ruchy.txt', 'r+')
-    #pobranie ostatniej lini z pliku
+    ruchy = open(plikWymiany, 'r+')
+    #pobranie ostatniej lini z pliku    
     i=0
     for line in ruchy:
-       i+=1
-    ruchy.seek(i*4-4)
-    ostatniRuch=ruchy.readline()
+       pass
+    ostatniRuch = line
     ruchy.close()
     return ostatniRuch
 #funkcja sluzaca tylko do testowania poprawnosci ruchow, odczytujaca wartosc z konsoli i zapisujaca ja do pliku ruch
 def pobierzRuch():
-    ruchy = open('ruchy.txt', 'w+')
-    ruchNowy=input('\n podaj ruch np:c1c6\n')
-    ruchy.write(ruchNowy+'\n')
-    ruchy.truncate()
+    ruchNowy=input('podaj ruch np:c1c6\n')
+    with open(plikWymiany, "a") as ruchy:
+        ruchy.write(ruchNowy)
+        ruchy.write('\n')
     ruchy.close()
 #funkcja ruchu
 def ruch(ostatniRuch):
@@ -197,11 +218,66 @@ def ruch(ostatniRuch):
     szachownica[endX][endY]=szachownica[startX][startY]
     szachownica[startX][startY]=0
     return 1
+#jakis poczatek si
+def ustalRuch():
+    #pauza=input('pauza\n')
+    #wybierz bierke
+    if kolor:
+        bierka=figury[2]
+    else:
+        bierka=figury[9]
+    #wybierz ruch
+    startX=bierka.pozycjaX
+    startY=bierka.pozycjaY
+    n=0
+    while True:
+        fRuch = getattr(bierka, bierka.ruchy[n])    
+        endX=fRuch()[0]
+        endY=fRuch()[1]
+        n+=1
+        print(str(endX+1)+str(endY+1))
+        if bierka.sprawdz(endX,endY):
+            break
+    #tworzenie ruchu i zapis do pliku wymiany
+    ruchNowy=''
+    ruchNowy+=alfabet[startX+1]
+    ruchNowy+=str(startY+1)
+    ruchNowy+=alfabet[endX+1]
+    ruchNowy+=str(endY+1)
+    print(ruchNowy)
+    with open(plikWymiany, "a") as ruchy:
+        ruchy.write(ruchNowy+'\n')
+        ruchy.write('')
+    ruchy.close()  
+#testowa funkcja rozgrywki
+def graj():
+    drukujSzachownice()
+    #ustalenie jaki mamy kolor i dokonanie pierwszego ruchu
+    ruchy = open(plikWymiany, 'r+')
+    i=0
+    for line in ruchy:
+        i=1
+    ruchy.close()
+    if 1==0:
+        print(ruch(ustalRuch()))
+        drukujSzachownice()
+    else:
+        kolor=1
+    #rozgrywka
+    while szachMat!=1:
+        print('\n Ruch przeciwnika')
+        pobierzRuch()
+        print(ruch(wczytajRuch()))
+        drukujSzachownice()
+        print('\n Ruch si')
+        ustalRuch()
+        print(ruch(wczytajRuch()))
+        drukujSzachownice()
 #dzialanie programu:
 init()
-drukujSzachownice()
+graj()
 #testowanie do 4 ruchow
-for i in range(4):
-    pobierzRuch()
-    print(ruch(wczytajRuch()))
-    drukujSzachownice()
+#for i in range(4):
+#    pobierzRuch()
+#    print(ruch(wczytajRuch()))
+#    drukujSzachownice()
