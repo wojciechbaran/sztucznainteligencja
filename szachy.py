@@ -27,10 +27,8 @@ class Pion:
         self.inicjal='p'
         if kolor:
             self.inicjal='P'
-    #sprawdzanie poprawnosci ruchu
-    def sprawdz(self,endX,endY,noweWatrosci=True):
-        if sprawdzSzachownice(endX,endY)==0:
-           return 0 
+    #sprawdzanie poprawnosci ruchu odczytanego z pliku i nadanie nowych współrzędnych
+    def sprawdz(self,endX,endY):
         #sprawdzenie ruchu na prawo i lewo
         if self.pozycjaX!=endX:
             if math.fabs(self.pozycjaX-endX)>1:
@@ -39,7 +37,7 @@ class Pion:
                 if szachownica[endX][endY]==0:
                     return 0
         else:
-            if szachownica[self.pozycjaX][endY]!=0:            
+            if szachownica[self.pozycjaX][endY]!=0:
                 return 0
         #sprawdzenie ruchu w przód
         if self.kolor:
@@ -50,8 +48,8 @@ class Pion:
                     return 0
             else:
                 if self.pozycjaY-endY>1:
-                    return 0                
-        else: 
+                    return 0 
+        else:
             if self.pozycjaY>endY:
                 return 0
             if self.pozycjaY==1:
@@ -61,9 +59,35 @@ class Pion:
                 if endY-self.pozycjaY>1:
                     return 0
         #nadanie nowych wartosci pozycji bierki
-        if noweWatrosci:       
-            self.pozycjaX=endX
-            self.pozycjaY=endY
+        self.pozycjaX=endX
+        self.pozycjaY=endY
+        return 1
+    #sprawdzanie poprawnosci ruchu dla SI
+    def sprawdzSI(self,endX,endY):
+        if sprawdzSzachownice(endX,endY)==0:
+           return 0
+        #sprawdzenie ruchu w zależności od ukladu bierek
+        if self.pozycjaX!=endX:
+            if szachownica[endX][endY]==0 or szachownica[endX][endY].kolor==self.kolor:
+                return 0
+        else:
+            if szachownica[self.pozycjaX][endY]!=0:
+                return 0  
+        #sprawdzenie ruchu w przód
+        if self.kolor:
+            if self.pozycjaY==6:
+                if self.pozycjaY-endY>2:
+                    return 0
+            else:
+                if self.pozycjaY-endY>1:
+                    return 0
+        else:
+            if self.pozycjaY==1:
+                if endY-self.pozycjaY>2:
+                    return 0
+            else:
+                if endY-self.pozycjaY>1:
+                    return 0
         return 1
     #typy ruchow
     ruchy=['przod2','przod','bicielewo','bicieprawo']
@@ -227,7 +251,7 @@ def ruch(ostatniRuch):
     szachownica[endX][endY]=szachownica[startX][startY]
     szachownica[startX][startY]=0
     return 1
-#jakis poczatek si-----------------------------------------------------------------------------------------------------------------------------------------
+#jakis poczatek SI-----------------------------------------------------------------------------------------------------------------------------------------
 def wybierzBierke(nBierka):
     if kolor:
         bierka=figury[1+nBierkan]
@@ -244,7 +268,7 @@ def wybierzRuch(bierka):
         endX=fRuch()[0]
         endY=fRuch()[1]
         n+=1
-        if bierka.sprawdz(endX,endY,False):
+        if bierka.sprawdzSI(endX,endY):
             break
         if n>=len(bierka.ruchy):
             return 0
@@ -292,9 +316,7 @@ def graj():
         drukujSzachownice()
 #dzialanie programu:
 init()
+#czyszczenie plikWymiany
+ruchy=open(plikWymiany, "w")
+ruchy.close
 graj()
-#testowanie do 4 ruchow
-#for i in range(4):
-#    pobierzRuch()
-#    print(ruch(wczytajRuch()))
-#    drukujSzachownice()
