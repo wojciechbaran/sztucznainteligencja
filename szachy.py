@@ -29,6 +29,8 @@ class Pion:
             self.inicjal='P'
     #sprawdzanie poprawnosci ruchu
     def sprawdz(self,endX,endY,noweWatrosci=True):
+        if sprawdzSzachownice(endX,endY)==0:
+           return 0 
         #sprawdzenie ruchu na prawo i lewo
         if self.pozycjaX!=endX:
             if math.fabs(self.pozycjaX-endX)>1:
@@ -174,6 +176,12 @@ def drukujSzachownice():
 def losuj(start=0,stop=7):
     from random import randint
     return randint(start,stop)
+def sprawdzSzachownice(endX,endY):
+    if endX<0 or endX>7:
+        return 0
+    if endY<0 or endY>7:
+        return 0
+    return 1
 def wczytajRuch():
     ruchy = open(plikWymiany, 'r+')
     #pobranie ostatniej lini z pliku    
@@ -205,13 +213,9 @@ def ruch(ostatniRuch):
     endY=int(ostatniRuch[3])-1
     #Z kazdym bledem funkcja ma zwracac 0
     #sprawdzenie czy podane wartosci nie wykraczaja poza szachownice
-    if startX<0 or startX>7:
+    if sprawdzSzachownice(startX,startY)==0:
         return 0
-    if startY<0 or startY>7:
-        return 0
-    if endX<0 or endX>7:
-        return 0
-    if endY<0 or endY>7:
+    if sprawdzSzachownice(endX,endY)==0:
         return 0
     #sprawdzanie czy istnieje bierka która ma się poruszyć
     if szachownica[startX][startY]==0:
@@ -240,10 +244,9 @@ def wybierzRuch(bierka):
         endX=fRuch()[0]
         endY=fRuch()[1]
         n+=1
-        print(str(endX+1)+str(endY+1))
         if bierka.sprawdz(endX,endY,False):
             break
-        if n>len(bierka.ruchy):
+        if n>=len(bierka.ruchy):
             return 0
     ruchNowy=''
     ruchNowy+=alfabet[startX+1]
@@ -260,7 +263,6 @@ def wybierzRuch(bierka):
 def ustalRuch():
     #pauza=input('pauza\n')
     #wybranie losowej bierki(na razie pionka)
-    print(losuj())
     while True:
         if wybierzRuch(wybierzBierke(losuj(0,3))):
             break 
