@@ -28,7 +28,7 @@ class Pion:
         if kolor:
             self.inicjal='P'
     #sprawdzanie poprawnosci ruchu
-    def sprawdz(self,endX,endY):
+    def sprawdz(self,endX,endY,noweWatrosci=True):
         #sprawdzenie ruchu na prawo i lewo
         if self.pozycjaX!=endX:
             if math.fabs(self.pozycjaX-endX)>1:
@@ -36,9 +36,10 @@ class Pion:
             else:
                 if szachownica[endX][endY]==0:
                     return 0
+        else:
+            if szachownica[self.pozycjaX][endY]!=0:            
+                return 0
         #sprawdzenie ruchu w przód
-        if szachownica[self.pozycjaX][endY]!=0:
-            return 0
         if self.kolor:
             if self.pozycjaY<endY:
                 return 0
@@ -57,9 +58,10 @@ class Pion:
             else:
                 if endY-self.pozycjaY>1:
                     return 0
-        #nadanie nowych wartosci pozycji bierki   
-        self.pozycjaX=endX
-        self.pozycjaY=endY
+        #nadanie nowych wartosci pozycji bierki
+        if noweWatrosci:       
+            self.pozycjaX=endX
+            self.pozycjaY=endY
         return 1
     #typy ruchow
     ruchy=['przod2','przod','bicielewo','bicieprawo']
@@ -169,6 +171,9 @@ def drukujSzachownice():
         print(8-i)
     for i in range(9):
         print(alfabet[i], end=" ")
+def losuj(start=0,stop=7):
+    from random import randint
+    return randint(start,stop)
 def wczytajRuch():
     ruchy = open(plikWymiany, 'r+')
     #pobranie ostatniej lini z pliku    
@@ -218,15 +223,15 @@ def ruch(ostatniRuch):
     szachownica[endX][endY]=szachownica[startX][startY]
     szachownica[startX][startY]=0
     return 1
-#jakis poczatek si
-def ustalRuch():
-    #pauza=input('pauza\n')
-    #wybierz bierke
+#jakis poczatek si-----------------------------------------------------------------------------------------------------------------------------------------
+def wybierzBierke(nBierka):
     if kolor:
-        bierka=figury[2]
+        bierka=figury[1+nBierkan]
     else:
-        bierka=figury[9]
-    #wybierz ruch
+        bierka=figury[8+nBierka]
+    return bierka
+def wybierzRuch(bierka):
+    #ma zwrocic 1 w przypadku dokonania poprawnego ruchu lub 0 jezeli nie da sie wykonac zadnego ruchu
     startX=bierka.pozycjaX
     startY=bierka.pozycjaY
     n=0
@@ -236,9 +241,10 @@ def ustalRuch():
         endY=fRuch()[1]
         n+=1
         print(str(endX+1)+str(endY+1))
-        if bierka.sprawdz(endX,endY):
+        if bierka.sprawdz(endX,endY,False):
             break
-    #tworzenie ruchu i zapis do pliku wymiany
+        if n>len(bierka.ruchy):
+            return 0
     ruchNowy=''
     ruchNowy+=alfabet[startX+1]
     ruchNowy+=str(startY+1)
@@ -248,7 +254,16 @@ def ustalRuch():
     with open(plikWymiany, "a") as ruchy:
         ruchy.write(ruchNowy+'\n')
         ruchy.write('')
-    ruchy.close()  
+    ruchy.close()
+    return 1
+    
+def ustalRuch():
+    #pauza=input('pauza\n')
+    #wybranie losowej bierki(na razie pionka)
+    print(losuj())
+    while True:
+        if wybierzRuch(wybierzBierke(losuj(0,3))):
+            break 
 #testowa funkcja rozgrywki
 def graj():
     drukujSzachownice()
