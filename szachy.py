@@ -224,7 +224,7 @@ def pobierzRuch():
     ruchy.close()
 #funkcja ruchu
 def ruch(ostatniRuch):
-    #mapowanie biter na wartosci int
+    #mapowanie liter na wartosci int
     i=0
     for let in alfabet:
         if ostatniRuch[0].upper()==let:
@@ -254,7 +254,7 @@ def ruch(ostatniRuch):
 #jakis poczatek SI-----------------------------------------------------------------------------------------------------------------------------------------
 def wybierzBierke(nBierka):
     if kolor:
-        bierka=figury[1+nBierkan]
+        bierka=figury[1+nBierka]
     else:
         bierka=figury[8+nBierka]
     return bierka
