@@ -3,11 +3,19 @@
 import sys, time, math
 #szachownica - lista dwuwymiarowa, pierwsza wartosc x, druga y, zakres 0-7, wartosci: 0 gdy pusta, bierka
 szachownica=[[0 for x in range(8)] for x in range(8)]
-figury=[0 for x in range(16)]
+#listy przechowywujace bierki
+bierkiBiale=[0 for x in range(8)]
+bierkiCzarne=[0 for x in range(8)]
 #sciezka do pliku wymiany ruchow
 plikWymiany='ruchy.txt'
 #lista alfabet sluzy do wyswietlania planszy oraz ustalenia wartosci x ruchu
 alfabet=[" ","A","B","C","D","E","F","G","H"]
+UNICODE_PIECES = {
+  'W': u'♜', 'S': u'♞', 'L': u'♝', 'Q': u'♛',
+  'K': u'♚', 'P': u'♟', 'w': u'♖', 's': u'♘',
+  'l': u'♗', 'q': u'♕', 'k': u'♔', 'p': u'♙',
+  None: ' '
+}
 #nasz kolor, domyslnie bialy
 kolor=0
 #flaga SzachMat
@@ -162,27 +170,27 @@ class Krol:
 #tworzenie bierek i uzupelnienie szachownicy na start
 def init():
     for i in range(4):
-        figury[i]=Pion(i+1,0,4+i,1)
-        szachownica[4+i][1]=figury[i]
-    figury[4]=Wieza(0,7,0)
-    szachownica[7][0]=figury[4]
-    figury[5]=Kon(0,6,0)
-    szachownica[6][0]=figury[5]
-    figury[6]=Laufer(0,5,0)
-    szachownica[5][0]=figury[6]
-    figury[7]=Krol(0,4,0)
-    szachownica[4][0]=figury[7]
+        bierkiBiale[i]=Pion(i+1,0,4+i,1)
+        szachownica[4+i][1]=bierkiBiale[i]
+    bierkiBiale[4]=Wieza(0,7,0)
+    szachownica[7][0]=bierkiBiale[4]
+    bierkiBiale[5]=Kon(0,6,0)
+    szachownica[6][0]=bierkiBiale[5]
+    bierkiBiale[6]=Laufer(0,5,0)
+    szachownica[5][0]=bierkiBiale[6]
+    bierkiBiale[7]=Krol(0,4,0)
+    szachownica[4][0]=bierkiBiale[7]
     for i in range(4):
-        figury[i+8]=Pion(i+5,1,4+i,6)
-        szachownica[4+i][6]=figury[i+8]
-    figury[12]=Wieza(1,7,7)
-    szachownica[7][7]=figury[12]
-    figury[13]=Kon(1,6,7)
-    szachownica[6][7]=figury[13]
-    figury[14]=Laufer(1,5,7)
-    szachownica[5][7]=figury[14]
-    figury[15]=Krol(1,4,7)
-    szachownica[4][7]=figury[15]
+        bierkiCzarne[i]=Pion(i+5,1,4+i,6)
+        szachownica[4+i][6]=bierkiCzarne[i]
+    bierkiCzarne[4]=Wieza(1,7,7)
+    szachownica[7][7]=bierkiCzarne[4]
+    bierkiCzarne[5]=Kon(1,6,7)
+    szachownica[6][7]=bierkiCzarne[5]
+    bierkiCzarne[6]=Laufer(1,5,7)
+    szachownica[5][7]=bierkiCzarne[6]
+    bierkiCzarne[7]=Krol(1,4,7)
+    szachownica[4][7]=bierkiCzarne[7]
 def drukujSzachownice():
     for i in range(9):
         print(alfabet[i], end=" ")
@@ -191,9 +199,9 @@ def drukujSzachownice():
         print(8-i, end=" ")
         for j in range(8):
             if szachownica[j][7-i]:
-                print(szachownica[j][7-i].inicjal, end=" ")
+                print(UNICODE_PIECES[szachownica[j][7-i].inicjal], end=" ")
             else:
-                print(szachownica[j][7-i], end=" ")
+                print(' ', end=" ")
         print(8-i)
     for i in range(9):
         print(alfabet[i], end=" ")
@@ -247,16 +255,28 @@ def ruch(ostatniRuch):
     #sprawdzanie czy ruch jest dozwolony
     if szachownica[startX][startY].sprawdz(endX,endY)==0:
         return 0
+    #czy następuje bicie
+    if szachownica[endX][endY]!=0:
+        if szachownica[endX][endY].kolor:
+            bierkiCzarne.remove(szachownica[endX][endY])
+        else:
+            bierkiBiale.remove(szachownica[endX][endY])
     #ruch
     szachownica[endX][endY]=szachownica[startX][startY]
     szachownica[startX][startY]=0
     return 1
 #jakis poczatek SI-----------------------------------------------------------------------------------------------------------------------------------------
 def wybierzBierke(nBierka):
-    if kolor:
-        bierka=figury[1+nBierka]
-    else:
-        bierka=figury[8+nBierka]
+    while True:
+        if kolor:
+            bierka=bierkiBiale[nBierka]
+        else:
+            bierka=bierkiCzarne[nBierka]
+        #dla testów czy pion
+        if type(bierka)==Pion:
+            break
+        else:
+            nBierka=losuj(0,3)
     return bierka
 def wybierzRuch(bierka):
     #ma zwrocic 1 w przypadku dokonania poprawnego ruchu lub 0 jezeli nie da sie wykonac zadnego ruchu
