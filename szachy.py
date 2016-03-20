@@ -1,6 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import sys, time, math
+from pion import *
+from wierza import *
+from kon import *
+from krol import *
+from laufer import *
+from hetman import *
+from utils import *
 #szachownica - lista dwuwymiarowa, pierwsza wartosc x, druga y, zakres 0-7, wartosci: 0 gdy pusta, bierka
 szachownica=[[0 for x in range(8)] for x in range(8)]
 #listy przechowywujace bierki
@@ -20,153 +27,7 @@ UNICODE_PIECES = {
 kolor=0
 #flaga SzachMat
 szachMat=0
-#Klasy bierek(figur):
-class Pion:
-    #wartosc danej bierki
-    wartosc=1
-    def __init__(self, numer, kolor, pozycjaX, pozycjaY):
-        #id bierki np: piony od 1 do 8
-        self.numer = numer
-        #kolor bierki 0 -> biały, 1 -> czarny
-        self.kolor = kolor
-        self.pozycjaX=pozycjaX
-        self.pozycjaY=pozycjaY
-        #inicjal czyli to co sie wyswietla na szachownicy
-        self.inicjal='p'
-        if kolor:
-            self.inicjal='P'
-    #sprawdzanie poprawnosci ruchu odczytanego z pliku i nadanie nowych współrzędnych
-    def sprawdz(self,endX,endY):
-        #sprawdzenie ruchu na prawo i lewo
-        if self.pozycjaX!=endX:
-            if math.fabs(self.pozycjaX-endX)>1:
-                return 0
-            else:
-                if szachownica[endX][endY]==0:
-                    return 0
-        else:
-            if szachownica[self.pozycjaX][endY]!=0:
-                return 0
-        #sprawdzenie ruchu w przód
-        if self.kolor:
-            if self.pozycjaY<endY:
-                return 0
-            if self.pozycjaY==6:
-                if self.pozycjaY-endY>2:
-                    return 0
-            else:
-                if self.pozycjaY-endY>1:
-                    return 0 
-        else:
-            if self.pozycjaY>endY:
-                return 0
-            if self.pozycjaY==1:
-                if endY-self.pozycjaY>2:
-                    return 0
-            else:
-                if endY-self.pozycjaY>1:
-                    return 0
-        #nadanie nowych wartosci pozycji bierki
-        self.pozycjaX=endX
-        self.pozycjaY=endY
-        return 1
-    #sprawdzanie poprawnosci ruchu dla SI
-    def sprawdzSI(self,endX,endY):
-        if sprawdzSzachownice(endX,endY)==0:
-           return 0
-        #sprawdzenie ruchu w zależności od ukladu bierek
-        if self.pozycjaX!=endX:
-            if szachownica[endX][endY]==0 or szachownica[endX][endY].kolor==self.kolor:
-                return 0
-        else:
-            if szachownica[self.pozycjaX][endY]!=0:
-                return 0  
-        #sprawdzenie ruchu w przód
-        if self.kolor:
-            if self.pozycjaY==6:
-                if self.pozycjaY-endY>2:
-                    return 0
-            else:
-                if self.pozycjaY-endY>1:
-                    return 0
-        else:
-            if self.pozycjaY==1:
-                if endY-self.pozycjaY>2:
-                    return 0
-            else:
-                if endY-self.pozycjaY>1:
-                    return 0
-        return 1
-    #typy ruchow
-    ruchy=['przod2','przod','bicielewo','bicieprawo']
-    def przod(self):
-        if self.kolor:
-            return [self.pozycjaX,self.pozycjaY-1]
-        return [self.pozycjaX,self.pozycjaY+1]
-    def przod2(self):
-        if self.kolor:
-            return [self.pozycjaX,self.pozycjaY-2]
-        return [self.pozycjaX,self.pozycjaY+2]
-    def bicielewo(self):
-        if self.kolor:
-            return [self.pozycjaX+1,self.pozycjaY-1]
-        return [self.pozycjaX-1,self.pozycjaY+1]
-    def bicieprawo(self):
-        if self.kolor:
-            return [self.pozycjaX-1,self.pozycjaY-1]
-        return [self.pozycjaX+1,self.pozycjaY+1]
-class Wieza:
-    wartosc=5
-    def __init__(self, kolor, pozycjaX, pozycjaY):
-        self.kolor = kolor
-        self.pozycjaX=pozycjaX
-        self.pozycjaY=pozycjaY
-        self.inicjal='w'
-        if kolor:
-            self.inicjal='W'
-    def sprawdz(self,endX,endY):
-        self.pozycjaX=endX
-        self.pozycjaY=endY
-        return 1
-class Kon:
-    wartosc=3
-    def __init__(self, kolor, pozycjaX, pozycjaY):
-        self.kolor = kolor
-        self.pozycjaX=pozycjaX
-        self.pozycjaY=pozycjaY
-        self.inicjal='s'
-        if kolor:
-            self.inicjal='S'
-    def sprawdz(self,endX,endY):
-        self.pozycjaX=endX
-        self.pozycjaY=endY
-        return 1
-class Laufer:
-    wartosc=3
-    def __init__(self, kolor, pozycjaX, pozycjaY):
-        self.kolor = kolor
-        self.pozycjaX=pozycjaX
-        self.pozycjaY=pozycjaY
-        self.inicjal='l'
-        if kolor:
-            self.inicjal='L'
-    def sprawdz(self,endX,endY):
-        self.pozycjaX=endX
-        self.pozycjaY=endY
-        return 1
-class Krol:
-    wartosc=0
-    def __init__(self, kolor, pozycjaX, pozycjaY):
-        self.kolor = kolor
-        self.pozycjaX=pozycjaX
-        self.pozycjaY=pozycjaY
-        self.inicjal='k'
-        if kolor:
-            self.inicjal='K'
-    def sprawdz(self,endX,endY):
-        self.pozycjaX=endX
-        self.pozycjaY=endY
-        return 1
+
 #tworzenie bierek i uzupelnienie szachownicy na start
 def init():
     for i in range(4):
@@ -205,15 +66,6 @@ def drukujSzachownice():
         print(8-i)
     for i in range(9):
         print(alfabet[i], end=" ")
-def losuj(start=0,stop=7):
-    from random import randint
-    return randint(start,stop)
-def sprawdzSzachownice(endX,endY):
-    if endX<0 or endX>7:
-        return 0
-    if endY<0 or endY>7:
-        return 0
-    return 1
 def wczytajRuch():
     ruchy = open(plikWymiany, 'r+')
     #pobranie ostatniej lini z pliku    
@@ -253,7 +105,7 @@ def ruch(ostatniRuch):
     if szachownica[startX][startY]==0:
         return 0
     #sprawdzanie czy ruch jest dozwolony
-    if szachownica[startX][startY].sprawdz(endX,endY)==0:
+    if szachownica[startX][startY].sprawdz(endX,endY,szachownica)==0:
         return 0
     #czy następuje bicie
     if szachownica[endX][endY]!=0:
@@ -262,6 +114,7 @@ def ruch(ostatniRuch):
         else:
             bierkiBiale.remove(szachownica[endX][endY])
     #ruch
+    aktualizujPozycje(szachownica[startX][startY],endX,endY)        
     szachownica[endX][endY]=szachownica[startX][startY]
     szachownica[startX][startY]=0
     return 1
@@ -283,12 +136,21 @@ def wybierzRuch(bierka):
     startX=bierka.pozycjaX
     startY=bierka.pozycjaY
     n=0
+    nMax=2
     while True:
-        fRuch = getattr(bierka, bierka.ruchy[n])    
-        endX=fRuch()[0]
-        endY=fRuch()[1]
+        if bierka.ruchy[n]=='przod':
+            nr=losuj(1,2)
+            endX=bierka.przod(nr)[0]
+            endY=bierka.przod(nr)[1]
+            if nMax>0:
+                nMax-=1
+                n-=1
+        else:
+            fRuch = getattr(bierka, bierka.ruchy[n])    
+            endX=fRuch()[0]
+            endY=fRuch()[1]
         n+=1
-        if bierka.sprawdzSI(endX,endY):
+        if bierka.sprawdz(endX,endY,szachownica):
             break
         if n>=len(bierka.ruchy):
             return 0
