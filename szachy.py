@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+fff
 import sys, time, math
 from pion import *
 from wierza import *
